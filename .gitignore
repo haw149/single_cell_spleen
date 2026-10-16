@@ -1,0 +1,15 @@
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.DS_Store
+.env
+.env.*
+*.h5ad
+*.h5
+*.hdf5
+downloaded_results/
+decontaminated/
+output/
+results_intermediate/
