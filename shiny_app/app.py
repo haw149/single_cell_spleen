@@ -12,6 +12,7 @@ from shinywidgets import output_widget, render_plotly
 sys.path.insert(0, str(Path(__file__).parent))
 import data_access as data
 import expression_views
+import cloud_data
 
 HERE = Path(__file__).parent
 PALETTE = px.colors.qualitative.Dark24
@@ -130,6 +131,7 @@ def server(input, output, session):
     @reactive.effect
     def watch_files():
         input.refresh()
+        cloud_data.ensure_dataset(data.ROOT)
         if input.auto_refresh(): reactive.invalidate_later(20)
         new = data.discover_files()
         with reactive.isolate():
@@ -140,6 +142,7 @@ def server(input, output, session):
     @reactive.effect
     @reactive.event(input.refresh, ignore_init=True)
     def force_refresh():
+        cloud_data.ensure_dataset(data.ROOT, retry=True)
         data.clear_cache()
         revision.set(revision.get() + 1)
 
@@ -163,7 +166,9 @@ def server(input, output, session):
     @reactive.calc
     def metadata():
         revision.get()
-        if not input.dataset(): return {"error": "No AnnData file found. Save an .h5ad file in the project folder, then refresh."}
+        if not input.dataset():
+            reactive.invalidate_later(5)
+            return {"error": cloud_data.status()}
         try: return data.describe_h5ad(input.dataset())
         except Exception as exc: return {"error": f"This dataset could not be read: {exc}. If it is being written, try Refresh when the save finishes."}
 

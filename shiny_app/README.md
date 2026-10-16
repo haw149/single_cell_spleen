@@ -94,3 +94,16 @@ References:
 - https://docs.posit.co/connect-cloud/how-to/python/shiny-python.html
 - https://docs.posit.co/connect-cloud/user/share/index.html
 - https://shiny.posit.co/py/docs/deploy-on-prem.html
+
+## Browser-only data setup on Connect Cloud
+
+The app can fetch `clustered_filtered.h5ad` from the GitHub release tagged `data-v1` in `haw149/single_cell_spleen`.
+
+1. Open the repository Releases page and create a release tagged `data-v1`.
+2. Attach `results_intermediate/clustered_filtered.h5ad` using the browser and publish the release.
+3. Republish the Connect Cloud app from `main`, primary file `shiny_app/app.py`.
+4. The app downloads the dataset in the background on first use and discovers it after completion. Click Refresh project to retry a failed download.
+
+Public repositories need no token. For a private repository, set `EDNA_GITHUB_TOKEN` as a Connect Cloud secret with Contents: Read-only permission for this repository. The app only sends this credential to GitHub's API and removes it on redirects to asset storage. Downloads are checked for expected size, SHA-256 when GitHub supplies it, and AnnData structure before being made visible. Existing local exports are preserved. The cloud cache may need to download again after the hosted instance is replaced.
+
+Public release assets can be downloaded by anyone, independently of the app's access settings.
